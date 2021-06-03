@@ -98,6 +98,7 @@ var loadPointCloud = function(dataset, onload) {
 	};
 
 	if (!dataset.file) {
+		// TODO :> Change file loading logic here based on URLs in lines 58-87 (`pointClouds`)
 		var url = "https://www.dl.dropboxusercontent.com/s/" + dataset.url + "?dl=1";
 		if (dataset.testing) {
 			url = dataset.url;
@@ -124,6 +125,7 @@ var loadPointCloud = function(dataset, onload) {
 		};
 		req.send();
 	} else {
+		// TODO :> Investigate local file storage reading here
 		var reader = new FileReader();
 		reader.onerror = errFcn;
 		reader.onload = function(evt) {
@@ -148,14 +150,21 @@ var selectPointCloud = function() {
 	loadingInfo.style.display = "block";
 
 	loadPointCloud(pointClouds[selection], function(dataset, dataBuffer) {
+		// TODO :> Will have to change and switch around how I'm handling the 
+		// 			particulars for the filetypes here, esp. if using GZIP compression
 		loadingInfo.style.display = "none";
 		var header = new Uint32Array(dataBuffer, 0, 4);
 		var bounds = new Float32Array(dataBuffer, 16, 6);
 
+		// TODO :> Can just use first line of `.pts` file format here
 		numSurfels = header[0];
+		// TODO :> Build associative arrays of `vec3f` and `uint8` for point 
+		//			positions and colors
+		// TODO :> Figure out what sizeofSurfel should actually be in this case
 		surfelPositions = new Float32Array(dataBuffer, header[1], numSurfels * (sizeofSurfel / 4));
 		surfelColors = new Uint8Array(dataBuffer, header[1] + numSurfels * sizeofSurfel);
 
+		// TODO :> Investigate ways of continuing to use the kdTree implementation here.
 		var numKdNodes = header[2];
 		var kdNodes = new Uint32Array(dataBuffer, 40, numKdNodes * 2);
 		var kdPrimIndices = new Uint32Array(dataBuffer, 40 + numKdNodes * sizeofKdNode, header[3]);
